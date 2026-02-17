@@ -4,7 +4,7 @@ namespace FirstAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class HelloController : Controller
+    public class HelloController : ControllerBase
     {
         [HttpGet]
         public string Get()
