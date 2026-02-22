@@ -16,12 +16,16 @@ namespace FirstAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_service.GetAll());
+        public IActionResult GetAll()
+        { 
+            return Ok(_service.GetAll()); 
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
             var product = _service.GetById(id);
+
             if (product == null)
                 return NotFound("Product Not Found");
 
@@ -29,12 +33,10 @@ namespace FirstAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Product product)
+        public IActionResult Create([FromBody] Product product)
         {
-            if (string.IsNullOrWhiteSpace(product.Name))
-                return BadRequest("Product Name is required");
-            if (product.Price <= 0)
-                return BadRequest("Price must be greater than zero");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var createdProduct = _service.Create(product);
 
@@ -42,13 +44,11 @@ namespace FirstAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Product updatedProduct)
+        public IActionResult Update(int id, [FromBody] Product updatedProduct)
         {
 
-            if (string.IsNullOrWhiteSpace(updatedProduct.Name))
-                return BadRequest("Product name is required");
-            if (updatedProduct.Price <= 0)
-                return BadRequest("Price must be geater than zero");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var sucess = _service.Update(id, updatedProduct);
 

@@ -1,6 +1,7 @@
 using FirstAPI.Services;
 using FirstAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using FirstAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();   
 
 app.MapControllers();
 
