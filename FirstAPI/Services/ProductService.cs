@@ -1,43 +1,57 @@
-﻿using FirstAPI.Models;
+﻿using FirstAPI.Data;
+using FirstAPI.Models;
 
 namespace FirstAPI.Services
 {
     public class ProductService : IProductService
     {
-        private static List<Product> products = new();
+        private readonly AppDbContext _context;
+
+        public ProductService(AppDbContext context)
+        {
+            _context = context;
+        }   
 
         public IEnumerable<Product> GetAll()
         {
-            return products; 
+            return _context.Products.ToList(); 
         }
 
         public Product? GetById(int id)
         {
-            return products.FirstOrDefault(p => p.Id == id);
+            return _context.Products.Find(id);
         }
 
         public Product Create(Product product)
         {
-            product.Id = products.Count == 0 ? 1 : products.Max(p => p.Id) + 1;
-            products.Add(product);
+            _context.Products.Add(product);
+            _context.SaveChanges();
             return product;
         }
 
-        public bool Update(int id, Product updatedProduct) {
-            var product = products.FirstOrDefault(p => p.Id == id);
+        public bool Update(int id, Product updatedProduct) 
+        {
+            var product = _context.Products.Find(id);
+
             if (product != null)
                 return false;
+
             product.Name = updatedProduct.Name;
             product.Price = updatedProduct.Price;
+
+            _context.SaveChanges();
             return true;
         }
 
         public bool Delete(int id)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.Find(id);
+
             if (product != null)
                 return false;
-            products.Remove(product);
+
+            _context.Products.Remove(product);
+            _context.SaveChanges();
             return true;
         }
     }
