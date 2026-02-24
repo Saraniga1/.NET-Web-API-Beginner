@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FirstAPI.Models;
 using FirstAPI.Services;
+using AutoMapper;
+using FirstAPI.DTOs;
 
 namespace FirstAPI.Controllers
 {
@@ -9,16 +11,20 @@ namespace FirstAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
+        private readonly IMapper _mapper;
 
-        public ProductController(IProductService service)
+        public ProductController(IProductService service, IMapper mapper)
         {
             _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         { 
-            return Ok(_service.GetAll()); 
+            var products = _service.GetAll();
+            var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+            return Ok(productDtos); 
         }
 
         [HttpGet("{id}")]
@@ -29,33 +35,44 @@ namespace FirstAPI.Controllers
             if (product == null)
                 return NotFound("Product Not Found");
 
+            var productDto = _mapper.Map<ProductDto>(product);
+
             return Ok(product);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Product product)
+        public IActionResult Create([FromBody] CreateProductDto createDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (string.IsNullOrWhiteSpace(createDto.Name))
+                return BadRequest("Product name is required.");
+            if (createDto.Price <= 0)
+                return BadRequest("Price must be greater than zero.");
 
+            var product = _mapper.Map<Product>(createDto);
             var createdProduct = _service.Create(product);
 
-            return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
+            var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
+
+            return CreatedAtAction(nameof(GetById), new { id = createdProductDto.Id }, createdProductDto);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Product updatedProduct)
+        public IActionResult Update(int id, [FromBody] UpdateProductDto updateDto)
         {
+            var existingProduct = _service.GetById(id);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (existingProduct == null)
+                return NotFound("Product Not Found");
 
-            var sucess = _service.Update(id, updatedProduct);
+            _mapper.Map(updateDto, existingProduct);
+            var sucess = _service.Update(id, existingProduct);
 
             if (!sucess)
                 return NotFound("Product Not Found");
 
-            return Ok(updatedProduct);
+            var productDto = _mapper.Map<ProductDto>(existingProduct);
+
+            return Ok(productDto);
         }
 
         [HttpDelete("{id}")]

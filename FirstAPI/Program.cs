@@ -2,6 +2,7 @@ using FirstAPI.Services;
 using FirstAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using FirstAPI.Middleware;
+using FirstAPI.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddScoped<IProductService, ProductService>();
 
