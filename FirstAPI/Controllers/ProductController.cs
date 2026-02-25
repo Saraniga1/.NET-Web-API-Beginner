@@ -35,10 +35,10 @@ namespace FirstAPI.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] Product product)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var createdProduct = _service.Create(product);
+
+            if (createdProduct == null)
+                return BadRequest("Invalid product data");
 
             return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
         }
@@ -46,16 +46,12 @@ namespace FirstAPI.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Product updatedProduct)
         {
+            var updated = _service.Update(id, updatedProduct);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (updated == null)
+                return BadRequest("Invalid product data");
 
-            var sucess = _service.Update(id, updatedProduct);
-
-            if (!sucess)
-                return NotFound("Product Not Found");
-
-            return Ok(updatedProduct);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]

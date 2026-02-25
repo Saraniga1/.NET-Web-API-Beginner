@@ -22,25 +22,36 @@ namespace FirstAPI.Services
             return _context.Products.Find(id);
         }
 
-        public Product Create(Product product)
+        public Product? Create(Product product)
         {
+            if (product == null) 
+                return null;    
+            if (string.IsNullOrEmpty(product.Name))
+                return null;
+            if (product.Price < 0)
+                return null;    
+
             _context.Products.Add(product);
             _context.SaveChanges();
             return product;
         }
 
-        public bool Update(int id, Product updatedProduct) 
+        public Product? Update(int id, Product updatedProduct) 
         {
             var product = _context.Products.Find(id);
 
             if (product == null)
-                return false;
+                return null;
+            if (string.IsNullOrEmpty(updatedProduct.Name))
+                return null;
+            if (updatedProduct.Price < 0)
+                return null;
 
             product.Name = updatedProduct.Name;
             product.Price = updatedProduct.Price;
 
             _context.SaveChanges();
-            return true;
+            return product;
         }
 
         public bool Delete(int id)
