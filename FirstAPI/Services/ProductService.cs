@@ -12,9 +12,16 @@ namespace FirstAPI.Services
             _context = context;
         }   
 
-        public IEnumerable<Product> GetAll()
+        public IEnumerable<Product> GetAll(string? nameFilter = null, int pageNumber = 1, int pageSize = 10)
         {
-            return _context.Products.ToList(); 
+            var query = _context.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(nameFilter))
+            {
+                query = query.Where(p => p.Name.Contains(nameFilter));
+            }
+
+            return query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
         }
 
         public Product? GetById(int id)

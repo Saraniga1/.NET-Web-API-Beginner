@@ -20,11 +20,11 @@ namespace FirstAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
-        { 
-            var products = _service.GetAll();
+        public IActionResult GetAll([FromQuery] string? name, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var products = _service.GetAll(name, pageNumber, pageSize);
             var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
-            return Ok(productDtos); 
+            return Ok(productDtos);
         }
 
         [HttpGet("{id}")]
