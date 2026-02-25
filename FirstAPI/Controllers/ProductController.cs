@@ -37,7 +37,7 @@ namespace FirstAPI.Controllers
 
             var productDto = _mapper.Map<ProductDto>(product);
 
-            return Ok(product);
+            return Ok(productDto);
         }
 
         [HttpPost]
@@ -50,6 +50,9 @@ namespace FirstAPI.Controllers
 
             var product = _mapper.Map<Product>(createDto);
             var createdProduct = _service.Create(product);
+
+            if (createdProduct == null)
+                return BadRequest("Failed to create product.");
 
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
 
@@ -66,9 +69,6 @@ namespace FirstAPI.Controllers
 
             _mapper.Map(updateDto, existingProduct);
             var sucess = _service.Update(id, existingProduct);
-
-            if (!sucess)
-                return NotFound("Product Not Found");
 
             var productDto = _mapper.Map<ProductDto>(existingProduct);
 
