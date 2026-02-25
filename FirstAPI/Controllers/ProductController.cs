@@ -7,7 +7,7 @@ namespace FirstAPI.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private static List<Product> products = new List<Product>();
+        private static readonly List<Product> products = [];
 
         [HttpGet]
         public IActionResult GetAll()
