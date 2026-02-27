@@ -58,7 +58,7 @@ namespace FirstAPI.Services
         {
             var product = _context.Products.Find(id);
 
-            if (product != null)
+            if (product == null)
                 return false;
 
             _context.Products.Remove(product);
