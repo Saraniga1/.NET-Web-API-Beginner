@@ -35,6 +35,12 @@ namespace FirstAPI.Controllers
         [HttpPost]
         public IActionResult Create(Product product)
         {
+            if (product == null)
+                return BadRequest("Product cannot be null");
+            if (string.IsNullOrWhiteSpace(product.Name))
+                return BadRequest("Product Name is required");
+            if (product.Price <= 0)
+                return BadRequest("Price must be greater than zero");
             var createdProduct = _service.Create(product);
 
             if (createdProduct == null)
@@ -46,10 +52,20 @@ namespace FirstAPI.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, Product product)
         {
-            var updatedProduct = _service.Update(id, product);
-
             if (updatedProduct == null)
-                return BadRequest("Invalid product data");
+                return BadRequest("Request body cannot be null");
+            if (string.IsNullOrWhiteSpace(updatedProduct.Name))
+                return BadRequest("Product name is required");
+            if (updatedProduct.Price <= 0)
+                return BadRequest("Price must be geater than zero");
+
+            var product = products.FirstOrDefault(p => p.Id == id);
+
+            if (product == null)
+                return NotFound("Product Not Found");
+
+            product.Name = updatedProduct.Name;
+            product.Price = updatedProduct.Price;
 
             return Ok(updatedProduct);
         }
