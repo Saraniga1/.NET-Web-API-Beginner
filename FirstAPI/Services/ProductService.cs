@@ -14,7 +14,7 @@ namespace FirstAPI.Services
 
         public IEnumerable<Product> GetAll()
         {
-            return _context.Products.ToList(); 
+            return [.. _context.Products]; 
         }
 
         public Product? GetById(int id)
@@ -25,9 +25,11 @@ namespace FirstAPI.Services
         public Product? Create(Product product)
         {
             if (product == null) 
-                return null;    
+                return null;
+
             if (string.IsNullOrEmpty(product.Name))
                 return null;
+
             if (product.Price < 0)
                 return null;    
 
@@ -42,8 +44,10 @@ namespace FirstAPI.Services
 
             if (product == null)
                 return null;
+
             if (string.IsNullOrEmpty(updatedProduct.Name))
                 return null;
+
             if (updatedProduct.Price < 0)
                 return null;
 
@@ -51,6 +55,7 @@ namespace FirstAPI.Services
             product.Price = updatedProduct.Price;
 
             _context.SaveChanges();
+
             return product;
         }
 
