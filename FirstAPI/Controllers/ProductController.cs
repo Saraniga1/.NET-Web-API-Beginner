@@ -50,24 +50,23 @@ namespace FirstAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Product product)
+        public IActionResult Update(int id, Product updatedProduct)
         {
             if (updatedProduct == null)
                 return BadRequest("Request body cannot be null");
+
             if (string.IsNullOrWhiteSpace(updatedProduct.Name))
                 return BadRequest("Product name is required");
-            if (updatedProduct.Price <= 0)
-                return BadRequest("Price must be geater than zero");
 
-            var product = products.FirstOrDefault(p => p.Id == id);
+            if (updatedProduct.Price <= 0)
+                return BadRequest("Price must be greater than zero");
+
+            var product = _service.Update(id, updatedProduct);
 
             if (product == null)
                 return NotFound("Product Not Found");
 
-            product.Name = updatedProduct.Name;
-            product.Price = updatedProduct.Price;
-
-            return Ok(updatedProduct);
+            return Ok(product);
         }
 
         [HttpDelete("{id}")]
