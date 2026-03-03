@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FirstAPI.Models;
+using FirstAPI.Services;
 
 namespace FirstAPI.Controllers
 {
@@ -7,18 +8,24 @@ namespace FirstAPI.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private static readonly List<Product> products = [];
+        private readonly IProductService _service;
+
+        public ProductController(IProductService service)
+        {
+            _service = service;
+        }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(products);
+            return Ok(_service.GetAll());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var product = _service.GetById(id);
+
             if (product == null)
                 return NotFound("Product Not Found");
 
@@ -34,12 +41,12 @@ namespace FirstAPI.Controllers
                 return BadRequest("Product Name is required");
             if (product.Price <= 0)
                 return BadRequest("Price must be greater than zero");
+            var createdProduct = _service.Create(product);
 
-            product.Id = products.Count == 0 ? 1 : products.Max(p => p.Id) + 1;
+            if (createdProduct == null)
+                return BadRequest("Invalid product data");
 
-            products.Add(product);
-
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
         }
 
         [HttpPut("{id}")]
@@ -47,18 +54,17 @@ namespace FirstAPI.Controllers
         {
             if (updatedProduct == null)
                 return BadRequest("Request body cannot be null");
+
             if (string.IsNullOrWhiteSpace(updatedProduct.Name))
                 return BadRequest("Product name is required");
-            if (updatedProduct.Price <= 0)
-                return BadRequest("Price must be geater than zero");
 
-            var product = products.FirstOrDefault(p => p.Id == id);
+            if (updatedProduct.Price <= 0)
+                return BadRequest("Price must be greater than zero");
+
+            var product = _service.Update(id, updatedProduct);
 
             if (product == null)
                 return NotFound("Product Not Found");
-
-            product.Name = updatedProduct.Name;
-            product.Price = updatedProduct.Price;
 
             return Ok(product);
         }
@@ -66,12 +72,10 @@ namespace FirstAPI.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var product = products.FirstOrDefault(p => id == p.Id);
+            var sucess = _service.Delete(id);
 
-            if (product == null)
+            if (!sucess)
                 return NotFound("Product not found");
-
-            products.Remove(product);
 
             return NoContent();
         }
